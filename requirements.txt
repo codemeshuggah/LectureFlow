@@ -1,0 +1,12 @@
+# Core dependencies
+requests>=2.31.0
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+
+# Optional: Local offline transcription (GPU accelerated, free)
+# faster-whisper>=1.0.0
+# torch>=2.0.0
+
+# Optional: PPTX slide deck inspection (without Office COM)
+# python-pptx>=0.6.21
+# pdf2image>=1.17.0

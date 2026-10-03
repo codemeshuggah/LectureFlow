@@ -1,0 +1,100 @@
+# ==============================================================================
+# LectureFlow Project Configuration
+# ==============================================================================
+
+project:
+  name: "MyCourse_Lecture_01"
+  resolution: [1920, 1080]
+  fps: 25.0
+
+# ------------------------------------------------------------------------------
+# Slide Extraction & Filtering
+# ------------------------------------------------------------------------------
+slides:
+  # Number of cover / title slides to skip from the beginning of the deck
+  skip_cover_slides: 2
+  # Exclude the final static "Thank You" slide (to be replaced by animated outro)
+  skip_outro_slide: true
+  # Image format for extracted slides: png or jpg
+  export_format: "png"
+  export_resolution: [1920, 1080]
+
+# ------------------------------------------------------------------------------
+# Template Assets & Intro Sequence (All Optional)
+# ------------------------------------------------------------------------------
+templates:
+  enabled: true
+  intro_logo:
+    path: "./templates/intro_logo.mp4"
+    duration_seconds: 3.0
+    track: "Video 3"
+  instructor_card:
+    enabled: true
+    path: "./templates/instructor_intro.mp4"
+    duration_seconds: 4.0
+    track: "Video 3"
+  module_intro_gap:
+    enabled: true
+    duration_seconds: 5.0
+    track: "Video 3"
+  music_bed:
+    path: "./templates/intro_music.mp3"
+    track: "Audio 2"
+    start_seconds: 0.0
+    duration_seconds: 14.24
+  presenter_background:
+    path: "./templates/presenter_bg.jpg"
+    track: "Video 1"
+  outro_video:
+    path: "./templates/outro_thankyou.mp4"
+    track: "Video 1"
+    duration_seconds: 20.0
+
+# ------------------------------------------------------------------------------
+# Presenter Motion & Picture-in-Picture (PIP)
+# ------------------------------------------------------------------------------
+presenter_layout:
+  # Opening welcome clip before Slide 1 commences
+  welcome:
+    position: [0.5, 0.5]          # Normalized [X, Y] (Center)
+    scale: 100.0                  # Percentage
+  # Slide presentation segments
+  pip:
+    preset: "bottom-right"        # Presets: 'bottom-right', 'bottom-left', 'custom'
+    # Coordinates normalized to [width, height]:
+    # (X: 1594 / 1920 = 0.8302, Y: 731 / 1080 = 0.6769)
+    custom_position: [0.830208, 0.676852]
+    scale: 66.0
+    uniform_scale: true
+    anchor_point: [0.5, 0.5]
+
+# ------------------------------------------------------------------------------
+# Chroma Key (Ultra Key) Calibration
+# ------------------------------------------------------------------------------
+chroma_key:
+  enabled: true
+  key_color: [197, 255, 65]       # [R, G, B]
+  transparency: 46.0
+  highlight: 10.0
+  shadow: 51.0
+  tolerance: 50.0
+  pedestal: 86.0
+  choke: 10.0
+  soften: 6.0
+  contrast: 4.0
+  mid_point: 50.0
+  desaturate: 25.0
+  spill: 50.0
+
+# ------------------------------------------------------------------------------
+# Spoken Cue & Retake Detection
+# ------------------------------------------------------------------------------
+asr:
+  engine: "elevenlabs"            # 'local_whisper', 'elevenlabs', or 'openai'
+  whisper_model: "base"           # 'tiny', 'base', 'small', 'medium', 'large-v3'
+  cue_words: ["slide", "next slide"]
+  retake_keywords: ["cut", "retake", "sorry", "again", "one more time"]
+  max_dead_air_seconds: 3.0       # Auto-tighten pauses exceeding this duration
+  cut_padding:
+    pre_speech_seconds: 0.5       # Natural room tone before sentence starts
+    post_speech_seconds: 0.5      # Natural room tone after sentence ends
