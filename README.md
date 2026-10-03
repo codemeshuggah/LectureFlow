@@ -17,13 +17,59 @@ GitHub: https://github.com/codemeshuggah
 
 ## 🚀 Key Features
 
-* **Interactive Intake**: Prompts for user media paths, brand assets, and slide skip settings upon launch.
+* **Native Premiere Pro GUI Panel**: Complete dockable CEP extension inside Premiere Pro (`Window > Extensions > LectureFlow`) with modern glassmorphism styling, live sequence syncing, drag-and-drop file pickers, interactive sliders, and 1-click execution.
 * **Auto Slide Deck Ingest**: Extracts slides from PowerPoint (`.pptx`) as 1080p/4K PNGs, skips non-content title slides, and maps slide numbering **1:1** to the lecturer's spoken cues.
 * **ASR Word-Level Timing**: Supports free, offline GPU transcription via [`faster-whisper`](https://github.com/SYSTRAN/faster-whisper) or cloud APIs (ElevenLabs Scribe / OpenAI Whisper).
 * **Automated Cue & Retake Excision**: Detects verbal slide cues (*"Slide one"*, *"Slide two"*), retakes (*"Cut"*, *"Retake"*), and dead-air pauses.
 * **Mathematical Right-to-Left Trimming**: Trims from the latest cue backward, guaranteeing **zero downstream timeline drift** between dialogue, slides, and background tracks.
 * **Chroma Key & Motion PIP Layout**: Automatically applies calibrated **Ultra Key** (without cumbersome garbage masking) and transitions the presenter from a centered welcome greeting into a sleek Picture-in-Picture (PIP) layout.
 * **Overlay Track Protection**: Automatically locks overlay layers (e.g. Video 2) to safeguard lower-thirds, captions, and title cards.
+
+---
+
+## 🖥️ Modern Native GUI: Premiere Pro Extension Panel
+
+LectureFlow includes a modern, native **Adobe Premiere Pro CEP Panel** designed to give you a state-of-the-art visual control deck directly inside Premiere Pro:
+
+```text
++-------------------------------------------------------------+
+|  ⚡ LectureFlow v1.0                     🟢 Active Sync    |
+|  Active Sequence: SEM3_MBA_M1_ASM_V2     [25.0 FPS • 5V/2A] |
+|-------------------------------------------------------------|
+|  [1] Media & Slide Deck Ingest                              |
+|      Video: [ E:\Recordings\Raw_Lecture.mp4    ] [Browse]   |
+|      Deck:  [ E:\Decks\Presentation.pptx       ] [Browse]   |
+|      Skip Title Slides: [---O-------] 2                     |
+|      Skip End Slide:    [ ON ]                              |
+|                                                             |
+|  [2] ASR Speech & Retake Engine                             |
+|      Engine: [ Local Faster-Whisper (GPU)        v ]        |
+|      Model:  [ base.en (Fastest)                 v ]        |
+|      Retake & Dead-Air Cut Threshold: [---O---] 2.5s        |
+|                                                             |
+|  [3] PIP Layout & Chroma Keying                             |
+|      PIP Alignment: [ Bottom-Right (Standard)    v ]        |
+|      PIP Scale:     [-------O-] 66%                         |
+|      Auto Ultra Key: [ ON ]                                 |
+|      Lock Overlay Track (Video 2): [ ON ]                   |
+|                                                             |
+|  [ ⚡ RUN LECTUREFLOW AUTO-EDIT ]                            |
+|                                                             |
+|  [======== Progress: 100% Complete ===============]         |
+|  Console Log:                                               |
+|  [11:55:12] Sequence synced: SEM3_MBA_M1_ASM_V2             |
+|  [11:55:14] Ingested 11 content slides to bin SLIDES        |
+|  [11:55:16] Ultra Key applied & Video 2 locked              |
+|  [11:55:18] Right-to-left trimming complete (0 drift)       |
++-------------------------------------------------------------+
+```
+
+### How to Open the Panel in Premiere Pro:
+1. Copy the `cep_panel/` directory to your system CEP directory:
+   - **Windows**: `C:\Users\<User>\AppData\Roaming\Adobe\CEP\extensions\LectureFlow`
+   - **macOS**: `~/Library/Application Support/Adobe/CEP/extensions/LectureFlow`
+2. Open Premiere Pro and navigate to **Window > Extensions > LectureFlow**.
+3. Dock the panel anywhere in your workspace (beside the Timeline or Program Monitor).
 
 ---
 
