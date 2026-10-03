@@ -50,10 +50,12 @@
     <div class="field-group">
       <label class="field-label">PowerPoint Slide Deck (.pptx)</label>
       <div class="input-with-button">
-        <input type="text" id="ppt-path" class="text-input" placeholder="Select presentation deck...">
+        <input type="text" id="ppt-path" class="text-input" placeholder="Select presentation deck or drag file here...">
         <button class="btn-secondary" id="browse-ppt-btn">Browse</button>
       </div>
     </div>
+    <input type="file" id="hidden-video-input" accept=".mp4,.mov,.mkv,.m4v" style="display:none">
+    <input type="file" id="hidden-ppt-input" accept=".pptx,.ppt" style="display:none">
 
     <div class="dual-cols">
       <div class="field-group">

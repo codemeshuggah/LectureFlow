@@ -145,5 +145,18 @@ $._lectureflow = {
         } catch (e) {
             return JSON.stringify({ success: false, error: e.toString() });
         }
+    },
+
+    // 7. Native ExtendScript File Picker
+    selectFile: function (promptTitle) {
+        try {
+            var f = File.openDialog(promptTitle);
+            if (f) {
+                return f.fsName || f.fullName;
+            }
+            return "";
+        } catch (e) {
+            return "";
+        }
     }
 };

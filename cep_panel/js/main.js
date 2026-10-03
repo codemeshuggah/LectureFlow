@@ -78,26 +78,111 @@
     consoleBox.scrollTop = consoleBox.scrollHeight;
   }
 
-  // File Browsers via ExtendScript
-  browseVideoBtn.addEventListener('click', function () {
-    var script = 'File.openDialog("Select Raw Lecture Video", "Video:*.mp4;*.mov;*.mkv")';
+  var hiddenVideoInput = document.getElementById('hidden-video-input');
+  var hiddenPptInput = document.getElementById('hidden-ppt-input');
+
+  // Multi-tier File Picker Utility
+  function openFilePicker(type, title, inputEl, hiddenInput) {
+    // Tier 1: Adobe CEP Native Dialog (Fastest & most reliable in Premiere Pro)
+    if (window.cep && window.cep.fs && typeof window.cep.fs.showOpenDialogEx === 'function') {
+      try {
+        var filters = type === 'video' ? ['mp4', 'mov', 'mkv', 'm4v'] : ['pptx', 'ppt'];
+        var res = window.cep.fs.showOpenDialogEx(false, false, title, '', filters);
+        if (res && res.data && res.data.length > 0) {
+          var chosenPath = res.data[0];
+          inputEl.value = chosenPath;
+          log('Selected ' + type + ': ' + chosenPath.split(/[\\/]/).pop(), 'info');
+          return;
+        }
+      } catch (err) {
+        console.warn('CEP showOpenDialogEx error:', err);
+      }
+    }
+
+    // Tier 2: ExtendScript Native Dialog with .fsName return
+    var script = '$._lectureflow.selectFile("' + title + '")';
     csInterface.evalScript(script, function (result) {
-      if (result && result !== 'null') {
-        videoPathInput.value = result;
-        log('Selected video: ' + result.split('/').pop(), 'info');
+      if (result && result !== 'null' && result !== 'undefined' && result.trim() !== '' && result.indexOf('[object') === -1) {
+        inputEl.value = result.trim();
+        log('Selected ' + type + ': ' + result.split(/[\\/]/).pop(), 'info');
+      } else if (hiddenInput) {
+        // Tier 3: HTML5 Input File Fallback
+        hiddenInput.click();
       }
     });
+  }
+
+  // Browse Button Event Listeners
+  browseVideoBtn.addEventListener('click', function () {
+    openFilePicker('video', 'Select Raw Lecture Video', videoPathInput, hiddenVideoInput);
   });
 
   browsePptBtn.addEventListener('click', function () {
-    var script = 'File.openDialog("Select PowerPoint Deck", "Presentation:*.pptx;*.ppt")';
-    csInterface.evalScript(script, function (result) {
-      if (result && result !== 'null') {
-        pptPathInput.value = result;
-        log('Selected presentation: ' + result.split('/').pop(), 'info');
+    openFilePicker('presentation', 'Select PowerPoint Deck', pptPathInput, hiddenPptInput);
+  });
+
+  // Hidden HTML5 input change handlers
+  if (hiddenVideoInput) {
+    hiddenVideoInput.addEventListener('change', function (e) {
+      if (e.target.files && e.target.files.length > 0) {
+        var file = e.target.files[0];
+        var filePath = file.path || file.name;
+        videoPathInput.value = filePath;
+        log('Selected video: ' + file.name, 'info');
       }
     });
-  });
+  }
+
+  if (hiddenPptInput) {
+    hiddenPptInput.addEventListener('change', function (e) {
+      if (e.target.files && e.target.files.length > 0) {
+        var file = e.target.files[0];
+        var filePath = file.path || file.name;
+        pptPathInput.value = filePath;
+        log('Selected presentation: ' + file.name, 'info');
+      }
+    });
+  }
+
+  // Drag and Drop Support
+  function setupDragDrop(inputEl, validExts, typeName) {
+    inputEl.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      inputEl.style.borderColor = 'var(--accent-primary)';
+      inputEl.style.boxShadow = '0 0 10px rgba(99, 102, 241, 0.4)';
+    });
+
+    inputEl.addEventListener('dragleave', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      inputEl.style.borderColor = '';
+      inputEl.style.boxShadow = '';
+    });
+
+    inputEl.addEventListener('drop', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      inputEl.style.borderColor = '';
+      inputEl.style.boxShadow = '';
+
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        var droppedFile = e.dataTransfer.files[0];
+        var droppedPath = droppedFile.path || droppedFile.name;
+        var ext = droppedPath.split('.').pop().toLowerCase();
+
+        if (validExts.indexOf(ext) !== -1 || validExts.length === 0) {
+          inputEl.value = droppedPath;
+          log('Dropped ' + typeName + ': ' + droppedFile.name, 'info');
+        } else {
+          log('Unsupported file type (.' + ext + ') for ' + typeName, 'warn');
+        }
+      }
+    });
+  }
+
+  setupDragDrop(videoPathInput, ['mp4', 'mov', 'mkv', 'm4v'], 'video');
+  setupDragDrop(pptPathInput, ['pptx', 'ppt'], 'presentation');
 
   // Query Active Sequence
   function updateSequenceStatus() {
