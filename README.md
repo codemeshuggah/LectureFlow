@@ -65,7 +65,7 @@ LectureFlow communicates with Premiere Pro through the **Premiere Pro Model Cont
 
 * **Requirements**: Adobe Premiere Pro 2024 (v24.x) or 2025/2026 (v25.x / v26.x).
 * **Setting up the Premiere Pro MCP Bridge**:
-  1. Clone or download the Premiere Pro MCP extension (e.g., from [hyperbrowser/premiere-pro-mcp](https://github.com/hyperbrowser/premiere-pro-mcp) or your preferred CEP bridge).
+  1. Clone or download the Premiere Pro MCP extension (e.g., from (https://github.com/leancoderkavy/premiere-pro-mcp) or your preferred CEP bridge).
   2. Copy the extension folder to your system Adobe CEP directory:
      - **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
      - **macOS**: `~/Library/Application Support/Adobe/CEP/extensions/`
