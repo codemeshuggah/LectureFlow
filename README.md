@@ -58,12 +58,59 @@ gantt
 
 ---
 
-## 🛠️ Prerequisites
+## 🛠️ Prerequisites & Setup Guide
 
-1. **Adobe Premiere Pro** (2024 or later) with Premiere Pro MCP Server / CEP Bridge installed.
-2. **FFmpeg** installed and accessible in your system `PATH`.
-3. **Python 3.10+**.
-4. *(Optional for local transcription)* NVIDIA GPU with CUDA for ultra-fast Whisper execution.
+### 1. Adobe Premiere Pro & MCP Bridge
+LectureFlow communicates with Premiere Pro through the **Premiere Pro Model Context Protocol (MCP)** server, which interfaces between AI agents / automation scripts and Adobe's CEP (Common Extensibility Platform) ExtendScript runtime.
+
+* **Requirements**: Adobe Premiere Pro 2024 (v24.x) or 2025/2026 (v25.x / v26.x).
+* **Setting up the Premiere Pro MCP Bridge**:
+  1. Clone or download the Premiere Pro MCP extension (e.g., from [hyperbrowser/premiere-pro-mcp](https://github.com/hyperbrowser/premiere-pro-mcp) or your preferred CEP bridge).
+  2. Copy the extension folder to your system Adobe CEP directory:
+     - **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
+     - **macOS**: `~/Library/Application Support/Adobe/CEP/extensions/`
+  3. Enable unsigned CEP extensions (PlayerDebugMode):
+     - **Windows (PowerShell)**:
+       ```powershell
+       Set-ItemProperty -Path "HKCU:\Software\Adobe\CSXS.11" -Name "PlayerDebugMode" -Value "1"
+       Set-ItemProperty -Path "HKCU:\Software\Adobe\CSXS.12" -Name "PlayerDebugMode" -Value "1"
+       ```
+     - **macOS (Terminal)**:
+       ```bash
+       defaults write com.adobe.CSXS.11 PlayerDebugMode 1
+       defaults write com.adobe.CSXS.12 PlayerDebugMode 1
+       ```
+  4. Launch Premiere Pro, open your project, and navigate to **Window > Extensions > Premiere Pro MCP** to start the WebSocket / CEP bridge.
+  5. Add the MCP server to your AI tool / editor config (e.g., Claude Desktop, Antigravity, or Cursor `mcp_config.json`):
+     ```json
+     {
+       "mcpServers": {
+         "premiere-pro": {
+           "command": "node",
+           "args": ["path/to/premiere-pro-mcp/build/index.js"]
+         }
+       }
+     }
+     ```
+
+### 2. FFmpeg Audio Extraction
+FFmpeg is required to quickly demux raw video into 16kHz mono PCM audio for lightning-fast speech recognition.
+* **Windows**:
+  ```powershell
+  winget install Gyan.FFmpeg
+  ```
+* **macOS**:
+  ```bash
+  brew install ffmpeg
+  ```
+* **Linux (Ubuntu/Debian)**:
+  ```bash
+  sudo apt update && sudo apt install ffmpeg
+  ```
+
+### 3. Python 3.10+ & Optional GPU Acceleration
+* Install Python 3.10 or higher.
+* *(Recommended)* An NVIDIA GPU with CUDA 12+ for instant local transcription via `faster-whisper`. If no CUDA GPU is present, it will automatically fall back to CPU or cloud ASR (ElevenLabs / OpenAI).
 
 ---
 
