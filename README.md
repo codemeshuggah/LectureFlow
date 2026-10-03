@@ -29,32 +29,7 @@ GitHub: https://github.com/codemeshuggah
 
 ## 📐 Architecture & Track Layout
 
-```mermaid
-gantt
-    title LectureFlow Track Architecture
-    dateFormat X
-    axisFormat %s
-
-    section Video 3 (Presenter & Intro)
-    Brand Logo Reveal (3s)       :active, 0, 3
-    Instructor Intro Card (4s)  :crit, 3, 7
-    Reserved Module Slot (5s)   :milestone, 7, 12
-    Presenter Welcome (Center)  :12, 28
-    Presenter Lecture (PIP)     :28, 700
-
-    section Video 1 (Slides & Outro)
-    Presenter Background Grid   :12, 28
-    Slide 01 (Learning Obj)     :28, 65
-    Slide 02 (Content)          :65, 130
-    Slide 03...                 :130, 680
-    Animated Outro (20s)        :crit, 680, 700
-
-    section Audio 2 (Music Bed)
-    Intro Music Bed (Anchored)  :0, 14.24
-
-    section Audio 1 (Dialogue)
-    Speaker Speech (Synced V3)  :12, 680
-```
+![LectureFlow Track Architecture](assets/track_layout.png)
 
 ---
 
