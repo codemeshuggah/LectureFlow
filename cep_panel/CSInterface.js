@@ -62,6 +62,14 @@ CSInterface.prototype.getSystemPath = function (pathType) {
   return "";
 };
 
+var SystemPath = {
+  EXTENSION: "extension",
+  APPLICATION: "application",
+  USER_DATA: "userData",
+  COMMON_FILES: "commonFiles",
+  HOST_APPLICATION: "hostApplication"
+};
+
 // System path constants
 CSInterface.prototype.EXTENSION_ID = "extensionId";
 

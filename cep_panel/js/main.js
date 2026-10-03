@@ -224,57 +224,119 @@
     var videoPath = videoPathInput.value.trim();
     var pptPath = pptPathInput.value.trim();
 
-    if (!videoPath && !pptPath) {
-      log('Please select a video file or presentation deck to begin.', 'warn');
+    if (!videoPath || !pptPath) {
+      log('⚠️ Please select both a Raw Video file and a PowerPoint presentation deck.', 'warn');
       return;
     }
 
+    // Verify Active Sequence in Premiere Pro
+    csInterface.evalScript('$._lectureflow.getSequenceInfo()', function (raw) {
+      try {
+        var info = JSON.parse(raw);
+        if (!info.success || !info.hasSequence) {
+          log('⚠️ No active sequence found in Premiere Pro! Please open or create a sequence first.', 'warn');
+          return;
+        }
+      } catch (e) {
+        log('⚠️ Could not verify sequence status: ' + e.message, 'warn');
+      }
+
+      runRealPipeline(videoPath, pptPath);
+    });
+  });
+
+  function runRealPipeline(videoPath, pptPath) {
     runBtn.disabled = true;
     runBtnText.textContent = 'Processing Pipeline...';
-    setProgress(5, 'Step 1/5: Extracting Slides...');
-    log('Starting LectureFlow Automated Pipeline...', 'info');
+    setProgress(5, 'Step 1/5: Initializing AI Engine...');
+    log('⚡ Starting LectureFlow Real AI Pipeline...', 'info');
 
-    // Simulate pipeline steps with realistic updates
-    setTimeout(function () {
-      setProgress(25, 'Step 2/5: Filtering Deck (Slides ' + skipFirstSlider.value + '+)...');
-      log('Filtering slides (skipping initial ' + skipFirstSlider.value + ' title slides)...', 'info');
-    }, 1200);
-
-    setTimeout(function () {
-      setProgress(45, 'Step 3/5: Speech-to-Text (' + asrEngineSelect.value + ')...');
-      log('Transcribing 16kHz audio with word-level timestamps...', 'info');
-    }, 2800);
-
-    setTimeout(function () {
-      setProgress(65, 'Step 4/5: Detecting Cues & Retakes (Threshold ' + retakeSlider.value + 's)...');
-      log('Detecting spoken transitions and verbal slip excisions...', 'info');
-    }, 4200);
-
-    setTimeout(function () {
-      setProgress(85, 'Step 5/5: Executing Right-to-Left Ripple Trims...');
-      log('Executing reverse razor cuts and zero-drift ripple trims...', 'info');
-
-      // Lock Video 2 if enabled
-      if (lockV2Toggle.checked) {
-        csInterface.evalScript('$._lectureflow.setTrackLocked(1, true)', function () {
-          log('Video 2 overlay track safely locked.', 'success');
-        });
-      }
-
-      // Apply Ultra Key if enabled
-      if (chromaKeyToggle.checked) {
-        csInterface.evalScript('$._lectureflow.applyUltraKeyToTrack(2)', function () {
-          log('Ultra Key chroma keying applied to Video 3.', 'success');
-        });
-      }
-    }, 5800);
-
-    setTimeout(function () {
-      setProgress(100, 'Complete!');
-      log('✅ LectureFlow pipeline completed with ZERO timeline drift!', 'success');
+    var nodeRequire = (typeof window.require !== 'undefined') ? window.require : (typeof require !== 'undefined' ? require : null);
+    if (!nodeRequire) {
+      log('⚠️ Node.js runtime not accessible in this panel. Please ensure --enable-nodejs is active in manifest.', 'error');
       runBtn.disabled = false;
       runBtnText.textContent = 'Run LectureFlow Auto-Edit';
-    }, 7200);
+      return;
+    }
+
+    try {
+      var cp = nodeRequire('child_process');
+      var path = nodeRequire('path');
+      var extPath = csInterface.getSystemPath('extension') || (typeof __dirname !== 'undefined' ? __dirname : '');
+
+      var configPath = path.join(extPath, 'config.example.yaml');
+
+      var args = [
+        '-m', 'src.cli',
+        '--video', videoPath,
+        '--ppt', pptPath,
+        '--config', configPath
+      ];
+
+      log('Launching Python engine: python -m src.cli ...', 'info');
+
+      var pyProc = cp.spawn('python', args, { cwd: extPath });
+
+      pyProc.stdout.on('data', function (chunk) {
+        var text = chunk.toString();
+        var lines = text.split('\n');
+        lines.forEach(function (line) {
+          line = line.trim();
+          if (line) {
+            var isSuccess = line.indexOf('[+]') !== -1 || line.indexOf('Complete') !== -1;
+            log(line, isSuccess ? 'success' : 'info');
+
+            if (line.indexOf('Step 1') !== -1) setProgress(20, 'Step 1/5: Extracting Slides...');
+            else if (line.indexOf('Step 2') !== -1) setProgress(45, 'Step 2/5: Transcribing Speech (ASR)...');
+            else if (line.indexOf('Step 3') !== -1) setProgress(70, 'Step 3/5: Detecting Cues & Retakes...');
+            else if (line.indexOf('Step 4') !== -1) setProgress(85, 'Step 4/5: Connecting to Premiere Bridge...');
+            else if (line.indexOf('Step 5') !== -1) setProgress(95, 'Step 5/5: Executing Right-to-Left Trimming...');
+          }
+        });
+      });
+
+      pyProc.stderr.on('data', function (chunk) {
+        var str = chunk.toString().trim();
+        if (str) {
+          log(str, 'warn');
+        }
+      });
+
+      pyProc.on('error', function (err) {
+        log('❌ Failed to spawn Python: ' + err.message + '. Ensure Python 3.10+ is in system PATH.', 'error');
+        runBtn.disabled = false;
+        runBtnText.textContent = 'Run LectureFlow Auto-Edit';
+      });
+
+      pyProc.on('close', function (code) {
+        if (code === 0) {
+          setProgress(100, 'Complete!');
+          log('✅ LectureFlow pipeline completed successfully with ZERO timeline drift!', 'success');
+
+          // Lock Video 2 if enabled
+          if (lockV2Toggle.checked) {
+            csInterface.evalScript('$._lectureflow.setTrackLocked(1, true)', function () {
+              log('Video 2 overlay track safely locked.', 'success');
+            });
+          }
+
+          // Apply Ultra Key if enabled
+          if (chromaKeyToggle.checked) {
+            csInterface.evalScript('$._lectureflow.applyUltraKeyToTrack(2)', function () {
+              log('Ultra Key chroma keying applied to Video 3.', 'success');
+            });
+          }
+        } else {
+          log('❌ Python pipeline exited with code ' + code + '. See log above.', 'error');
+        }
+        runBtn.disabled = false;
+        runBtnText.textContent = 'Run LectureFlow Auto-Edit';
+      });
+    } catch (err) {
+      log('❌ Execution error: ' + err.message, 'error');
+      runBtn.disabled = false;
+      runBtnText.textContent = 'Run LectureFlow Auto-Edit';
+    }
   });
 
 })();
