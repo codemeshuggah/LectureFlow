@@ -1,5 +1,8 @@
 """
-LectureFlow: Universal AI Automated Lecture Video Editing Pipeline.
+LectureFlow Package
+Universal AI Lecture Video Editing Pipeline
 """
 
-__version__ = "1.0.0"
+__version__ = "0.1.0"
+__author__ = "codemeshuggah"
+__github__ = "https://github.com/codemeshuggah"
