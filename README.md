@@ -64,8 +64,8 @@ gantt
 LectureFlow communicates with Premiere Pro through the **Premiere Pro Model Context Protocol (MCP)** server, which interfaces between AI agents / automation scripts and Adobe's CEP (Common Extensibility Platform) ExtendScript runtime.
 
 * **Requirements**: Adobe Premiere Pro 2024 (v24.x) or 2025/2026 (v25.x / v26.x).
-* **Setting up the Premiere Pro MCP Bridge**:
-  1. Clone or download the Premiere Pro MCP extension (e.g., from (https://github.com/leancoderkavy/premiere-pro-mcp) or your preferred CEP bridge).
+* **Setting up the Premiere Pro CEP Bridge**:
+  1. Clone or download the Premiere Pro MCP extension (e.g., from [leancoderkavy/premiere-pro-mcp](https://github.com/leancoderkavy/premiere-pro-mcp) or [hyperbrowser/premiere-pro-mcp](https://github.com/hyperbrowser/premiere-pro-mcp)).
   2. Copy the extension folder to your system Adobe CEP directory:
      - **Windows**: `C:\Program Files (x86)\Common Files\Adobe\CEP\extensions\`
      - **macOS**: `~/Library/Application Support/Adobe/CEP/extensions/`
@@ -80,20 +80,72 @@ LectureFlow communicates with Premiere Pro through the **Premiere Pro Model Cont
        defaults write com.adobe.CSXS.11 PlayerDebugMode 1
        defaults write com.adobe.CSXS.12 PlayerDebugMode 1
        ```
-  4. Launch Premiere Pro, open your project, and navigate to **Window > Extensions > Premiere Pro MCP** to start the WebSocket / CEP bridge.
-  5. Add the MCP server to your AI tool / editor config (e.g., Claude Desktop, Antigravity, or Cursor `mcp_config.json`):
-     ```json
-     {
-       "mcpServers": {
-         "premiere-pro": {
-           "command": "node",
-           "args": ["path/to/premiere-pro-mcp/build/index.js"]
-         }
+  4. Launch Premiere Pro, open your project, and navigate to **Window > Extensions > Premiere Pro MCP** to start the bridge.
+
+---
+
+### 2. Connecting Your AI Agent via MCP
+
+LectureFlow is designed to work seamlessly with any Model Context Protocol (MCP) enabled AI coding assistant or agentic environment:
+
+#### 🪐 Option A: Google Antigravity IDE (Primary & Recommended)
+Antigravity IDE provides native, autonomous pair-programming with deep MCP support and automatic skill discovery:
+1. Add the Premiere Pro MCP server in your Antigravity MCP configuration (`~/.gemini/antigravity-ide/mcp/premiere-pro/` or `mcp_config.json`):
+   ```json
+   {
+     "mcpServers": {
+       "premiere-pro": {
+         "command": "node",
+         "args": ["C:/path/to/premiere-pro-mcp/build/index.js"]
        }
      }
-     ```
+   }
+   ```
+2. Open the **LectureFlow** workspace in Antigravity. It automatically detects `.agents/skills/LectureFlow/SKILL.md` as an active agent skill!
+3. Simply prompt Antigravity:
+   > *"Edit my lecture video using LectureFlow"*
+   Antigravity will interactively ask for your media paths, run speech transcription, calculate right-to-left cut points, apply Ultra Key, and execute the edit on your timeline.
 
-### 2. FFmpeg Audio Extraction
+#### 💬 Option B: Anthropic Claude Desktop
+1. Open your Claude Desktop MCP configuration file:
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+2. Add the `premiere-pro` MCP server entry:
+   ```json
+   {
+     "mcpServers": {
+       "premiere-pro": {
+         "command": "node",
+         "args": ["/path/to/premiere-pro-mcp/build/index.js"]
+       }
+     }
+   }
+   ```
+3. Restart Claude Desktop. Load `SKILL.md` as your project prompt or instructions to give Claude full autonomous editing capabilities.
+
+#### ⚡ Option C: Cursor IDE
+1. Open Cursor and go to **Settings > Features > MCP**.
+2. Click **Add New MCP Server**:
+   - **Name**: `premiere-pro`
+   - **Type**: `command`
+   - **Command**: `node /path/to/premiere-pro-mcp/build/index.js`
+3. Reference `SKILL.md` in Cursor Composer or Chat with `@SKILL.md`.
+
+#### 🌊 Option D: Windsurf IDE (Codeium)
+1. Add the server entry to `~/.codeium/windsurf/mcp_config.json`:
+   ```json
+   {
+     "mcpServers": {
+       "premiere-pro": {
+         "command": "node",
+         "args": ["/path/to/premiere-pro-mcp/build/index.js"]
+       }
+     }
+   }
+   ```
+2. Cascade will automatically have access to Premiere Pro tools when editing your timeline.
+
+### 3. FFmpeg Audio Extraction
 FFmpeg is required to quickly demux raw video into 16kHz mono PCM audio for lightning-fast speech recognition.
 * **Windows**:
   ```powershell
@@ -108,7 +160,7 @@ FFmpeg is required to quickly demux raw video into 16kHz mono PCM audio for ligh
   sudo apt update && sudo apt install ffmpeg
   ```
 
-### 3. Python 3.10+ & Optional GPU Acceleration
+### 4. Python 3.10+ & Optional GPU Acceleration
 * Install Python 3.10 or higher.
 * *(Recommended)* An NVIDIA GPU with CUDA 12+ for instant local transcription via `faster-whisper`. If no CUDA GPU is present, it will automatically fall back to CPU or cloud ASR (ElevenLabs / OpenAI).
 

@@ -16,6 +16,8 @@ repository: https://github.com/codemeshuggah
 
 **LectureFlow** is a modular, universal automated video editing pipeline for educational course lectures, webinar recordings, and presentation videos inside **Adobe Premiere Pro** (interfacing via Model Context Protocol / Premiere Pro Bridge).
 
+Compatible natively with **Google Antigravity IDE** (primary agentic environment), **Anthropic Claude Desktop**, **Cursor IDE**, and **Windsurf IDE**.
+
 It transforms raw single-take green screen footage and presentation slide decks into broadcast-ready, tightly edited lecture videos in minutes.
 
 ---
